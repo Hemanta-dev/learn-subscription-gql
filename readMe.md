@@ -64,7 +64,9 @@ This repository contains code for setting up a GraphQL server using Express, Apo
 Below is the provided code snippet that sets up the GraphQL server using Apollo Server, Express, and WebSockets for subscriptions:
 
 ```javascript
-// Import required libraries
+// Import required libraries 
+
+//index.js
 import express from "express";
 import { createServer } from "http";
 import { makeExecutableSchema } from "@graphql-tools/schema";
@@ -175,6 +177,162 @@ connectToDatabase();
 14. The entire code is wrapped in an Immediately Invoked Function Expression (IIFE) to ensure it executes when the file is loaded.
 
 By following these steps, you'll set up a comprehensive GraphQL server using Express, complete with subscription capabilities, integrated database connectivity, and a user-friendly GraphQL Playground UI.
+
+
+
+# GraphQL Schema Documentation fro typeDefs.js
+
+```javascript
+
+//typeDefs.js
+
+const typeDefs=`
+  type Message{
+    text:String
+    createdBy:String
+  }
+
+  input MessageInput{
+    text:String
+    username:String
+
+  }
+  type Query{
+    message(id :ID!):Message 
+  }
+  
+    
+  type Mutation {
+    createMessage(messageInput: MessageInput): Message!
+
+  }
+  type Subscription{
+    messageCreated: Message
+  }
+
+`
+export default typeDefs;
+
+```
+
+This repository contains a GraphQL schema defined in the `typeDefs.js` file. This schema outlines the types and operations available in the GraphQL API.
+
+## Types
+
+### Message
+
+A type representing a message with the following fields:
+
+- `text`: The content of the message.
+- `createdBy`: The username of the author/creator of the message.
+
+### MessageInput
+
+An input type used when creating a new message with the following fields:
+
+- `text`: The content of the message.
+- `username`: The username of the message creator.
+
+## Operations
+
+### Query
+
+- `message(id: ID!): Message`: Retrieve a message by its unique identifier.
+
+### Mutation
+
+- `createMessage(messageInput: MessageInput): Message!`: Create a new message with the provided input and return the created message.
+
+### Subscription
+
+- `messageCreated: Message`: Subscribe to real-time updates for newly created messages.
+
+## Usage
+
+1. Install the required dependencies for your GraphQL server.
+2. Import and use the `typeDefs` in your GraphQL server setup.
+3. Use the defined types and operations in your GraphQL resolvers and client queries.
+
+Feel free to customize and extend this schema to match your application's requirements.
+
+
+
+
+# GraphQL Resolvers Documentation for resolvers.js
+
+```javascript
+
+//resolvers.js
+
+import Message from "./model/message.js";
+import { PubSub } from "graphql-subscriptions";
+
+const pubsub = new PubSub();
+const resolvers = {
+    Mutation: {
+        async createMessage(_,{messageInput:{text,username}}){
+          const newMessage = new Message({
+            text:text,
+            createdBy: username
+          });
+          const res =await newMessage.save();
+
+          pubsub.publish('MESSAGE_CREATED',{
+            messageCreated:{
+              text:text,
+              createdBy:username
+            }
+          })
+
+          return {
+             id:res.id,
+             ...res._doc
+          }
+        }
+    
+      },
+      Subscription: {
+        messageCreated:{
+          subscribe:()=>pubsub.asyncIterator('MESSAGE_CREATED')
+        }
+      },  
+      Query:{
+        message:(_,{ID})=> Message.findById(ID)
+      }
+ 
+  };
+export default resolvers;
+
+
+```
+
+This repository contains GraphQL resolvers defined in the `resolvers.js` file. These resolvers provide the implementation for the types and operations defined in the GraphQL schema.
+
+## Resolvers
+
+### Mutation
+
+- `createMessage(messageInput: MessageInput): Message!`: Create a new message with the provided input and return the created message. The resolver performs the following steps:
+  1. Creates a new message using the provided `text` and `username`.
+  2. Saves the new message to the database.
+  3. Publishes a real-time update to the `MESSAGE_CREATED` subscription topic.
+  4. Returns the created message.
+
+### Subscription
+
+- `messageCreated`: Subscribe to real-time updates for newly created messages. The resolver uses the `pubsub` instance to listen for updates on the `MESSAGE_CREATED` topic and sends updates to subscribers.
+
+### Query
+
+- `message(id: ID!): Message`: Retrieve a message by its unique identifier. The resolver queries the database for a message with the given `id`.
+
+## Usage
+
+1. Install the required dependencies for your GraphQL server.
+2. Import and use the `resolvers` in your GraphQL server setup, connecting them to your schema types and operations.
+3. Implement the logic within each resolver function, interacting with your data sources (e.g., databases, APIs).
+4. Utilize the PubSub instance (`pubsub`) to manage real-time subscriptions and update subscribers when relevant events occur.
+
 
 
 ---
