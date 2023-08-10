@@ -142,6 +142,41 @@ connectToDatabase();
 
 - You can modify the schema, resolvers, and other components according to your project requirements.
 
+### GraphQL Server Setup
+
+1. Import necessary modules and packages.
+
+2. Create an instance of the `express` application framework to handle HTTP requests.
+
+3. Use the built-in `http` module's `createServer` function to create an HTTP server using the `express` app.
+
+4. Utilize the `makeExecutableSchema` function from the `@graphql-tools/schema` package to create a GraphQL schema by combining `typeDefs` (type definitions) and `resolvers` (field resolvers).
+
+5. Import and use the `SubscriptionServer` class from `subscriptions-transport-ws` to set up a WebSocket-based server for handling GraphQL subscriptions.
+
+6. Import the `execute` and `subscribe` functions from the `graphql` package. These functions are used to execute and subscribe to GraphQL queries and mutations.
+
+7. Create an instance of the `ApolloServer` class from the `apollo-server-express` package, passing in the previously created schema. This will be our main GraphQL server.
+
+8. Add plugins to the Apollo Server configuration:
+   - A plugin to ensure the proper closing of the subscription server instance during shutdown.
+   - The `ApolloServerPluginLandingPageGraphQLPlayground` plugin to enable the GraphQL Playground UI.
+
+9. Connect to the database using the custom `connectToDatabase` function. This function likely establishes a connection to your chosen database system.
+
+10. Start the Apollo Server asynchronously by calling `server.start()`. This initializes the server and prepares it to handle incoming GraphQL requests.
+
+11. Apply the Apollo Server middleware to the `express` app using the `applyMiddleware` method. This integrates the GraphQL server with the Express application.
+
+12. Define a constant `PORT` with the desired port number, e.g., 5000.
+
+13. Start the HTTP server by calling the `listen` method on the `httpServer` instance. This makes the server listen on the specified port and outputs a log message confirming the server's running status.
+
+14. The entire code is wrapped in an Immediately Invoked Function Expression (IIFE) to ensure it executes when the file is loaded.
+
+By following these steps, you'll set up a comprehensive GraphQL server using Express, complete with subscription capabilities, integrated database connectivity, and a user-friendly GraphQL Playground UI.
+
+
 ---
 
 Feel free to modify the instructions based on your specific needs. If you encounter any issues or have further questions, please refer to the official documentation of the libraries used in the code.
