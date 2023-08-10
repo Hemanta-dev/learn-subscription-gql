@@ -1,0 +1,23 @@
+---------------------------------------------------------------------------------------
+mutation Mutation($messageInput: MessageInput){
+  createMessage(messageInput:$messageInput){
+    text
+    createdBy
+}
+}
+
+{
+  "messageInput":{
+    "text":"message from umag",
+    "username":"Hemu Dai"
+}
+  
+}
+--------------------------------------------------------------------------------------------------
+subscription Subscription{
+  messageCreated{
+    text
+    createdBy
+}
+}
+----------------------------------------------------------------------------------------------------------
